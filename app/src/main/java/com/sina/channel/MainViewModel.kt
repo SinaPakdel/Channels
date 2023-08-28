@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
@@ -51,12 +52,30 @@ class MainViewModel : ViewModel() {
              */
 
             /**
+             * BUFFERED::
              * capacity is just about to handle 2 send function for the first time,once
              * then, after that
              * producer remove first send element to create more space for another send
              * until all send events will be finished
+             *
+             * CONFLATED::
+             * if we add CONFLATED for capacity we only have last one element from it
+             * the other hand means , replacing to the last element with new one element
+             * so we lose all data before new one
+             * NOTE:
+             * if we send many elements in this type we got only the last one
+             *
              */
             channelProducer = produce(capacity = 2) {
+                send(Language.JAVA)
+                send(Language.KOTLIN)
+                send(Language.PYTHON)
+                send(Language.PYTHON)
+                send(Language.PYTHON)
+            }
+
+
+            channelProducer = produce(capacity = CONFLATED) {
                 send(Language.JAVA)
                 send(Language.KOTLIN)
                 send(Language.PYTHON)
